@@ -50,13 +50,35 @@ A =np.matrix([[1.,0.,1.,2.5,0.,7.],
                [0.,0., 0,5., 5. ,0.]])
 c = [1,2,3]
 from_first_phase_generate_simplex_table_second_phase(A,c)
-
 #%%
 def get_solutions_simplex(final_table):
-    raise NotImplementedError
-
+    n2P,m2P =  np.shape(final_table)
+    n,m = n2P-1,m2P-1
+    sol_n = 0
+    vector_sol = np.zeros(m)
+    min_func_obj = - final_table[n,m]
+    # Filling the matrix A's part of the table
+    for i in range(m):
+        # only find the solution with the first n zeros of the basis
+        if final_table[-1,i] == 0 and sol_n != n:
+            j = 0
+            ## search for the 1 of the basis
+            while j < n:
+                if final_table[j,i] == 1:
+                    break
+                j+=1
+            ## save the value of b of the 1 finded
+            vector_sol[i] = final_table[j,-1]
+            sol_n +=1
+        else:
+            vector_sol[i] = 0
+    return vector_sol, min_func_obj
+A =np.matrix([[1.,0.,1.,2.5,0.,7.],
+               [0.,1.,0.,1.,1.5,8.],
+               [0.,0., 1,5., 5. ,5.]])
+get_solutions_simplex(A)
+#%%
 def TwoPhases(matrix_A, vector_b, vector_c):
-    n,m = matrix_A.shape()
     #First phase
     table_0_1p = generate_simplex_table_first_phase(matrix_A, vector_b)
     final_table_1p = simplex(table_0_1p)
@@ -65,6 +87,7 @@ def TwoPhases(matrix_A, vector_b, vector_c):
         raise Exception
     table_0_2p = from_first_phase_generate_simplex_table_second_phase(final_table_1p,vector_c)
     final_table_2p = simplex(table_0_2p)
-    vector_sol, min_func_obj = get_solutions_simplex(final_table_2p)
-    return vector_sol, min_func_obj
+    ## return of a tuple with vector_sol, min_func_obj
+    return get_solutions_simplex(final_table_2p)
+    
 # %%
