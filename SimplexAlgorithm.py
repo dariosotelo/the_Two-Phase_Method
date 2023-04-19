@@ -1,0 +1,2 @@
+def simplex():
+    raise NotImplementedError
