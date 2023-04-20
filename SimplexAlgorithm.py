@@ -9,9 +9,6 @@ def first_negative_cost(vector_c):
         else:
             return j
 #%%
-def to_numpy_array(vector):
-    raise NotImplementedError
-#%%
 def find_the_first_positive(vector):
     n = len(vector)
     j = 0
@@ -31,6 +28,19 @@ def lowest_positive_ratio(vector_xj,vector_b):
 lista = np.array([-1,2.,-2.,1.,6.,-9.])
 b = np.array([1,1.,1.,1.,1.,1.])
 lowest_positive_ratio(lista,b)
+#%%
+def row_to_np_array(matrix_A,row):
+    n,m = np.shape(matrix_A)
+    vect = np.zeros(m)
+    for i in range(m):
+        vect[i] = matrix_A[row,i]
+    return vect
+def col_to_np_array(matrix_A,col):
+    n,m = np.shape(matrix_A)
+    vect = np.zeros(n)
+    for i in range(n):
+        vect[i] = matrix_A[i,col]
+    return vect
 #%% 
 def simplex(table):
     """
@@ -44,12 +54,13 @@ def simplex(table):
     """
     # Initialize the iteration counter
     iterations = 0
-    print(table[-1, :-1].reshape(-1,1))
     # Iterate until the objective function coefficients are all non-negative
     while np.any(table[-1, :-1] < 0) and iterations < 1000:
-        
-        j = first_negative_cost(table[-1, :-1])
-        i = lowest_positive_ratio(table[:-1, j],table[:-1, -1])
+        vec_c = row_to_np_array(table,-1)
+        j = first_negative_cost(vec_c[:-1])
+        col_j = col_to_np_array(table,j)
+        vec_b = col_to_np_array(table,-1)
+        i = lowest_positive_ratio(col_j[:-1],vec_b[:-1])
         # Update the simplex table using the pivot row i and pivot column j
         table[i, :] /= table[i, j]
         for k in range(table.shape[0]):
@@ -73,8 +84,10 @@ A = np.matrix([
     [0.,1.,1.,0.,1.,1.,6.],
     [0.,-10.,-2.,0.,1.,0.,-6.],
 ])
-vec = A[-1, :-1]
-arr = np.shape(vec)[1]
-vec1 = vec.flatten(order='F')
-print(vec1)
+
+A[:-1, 2]
+print(col_to_np_array(A,-1))
+
+
+
 # %%
