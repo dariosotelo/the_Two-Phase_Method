@@ -104,10 +104,11 @@ def canonVector(vector):
         return -99
     i=0
     sum=0
-    por=-1
+    pos=-1
     while(i<len(vector)):
+        sum+=vector[i]
         if (vector[i]==1):
-            sum+=vector[i]
+            #sum+=vector[i]
             pos=i
         i+=1
     if sum==1:
@@ -118,8 +119,18 @@ def canonVector(vector):
 
 def identityInsideMatrix(table):
     n,m=table.shape
-    i = 0
-    basis = 0
+    i=0
+    j=0
+    basis=0
+    canonList=[]
+    while j<m:
+        print(j)
+        if (canonVector(table[:, j])>0):
+            canonList.append(canonVector(table[:,j]))
+            print(canonList)
+        j+=1
+    print(canonList)
+    '''''
     while i < m and basis < n - 1:
         if (table[i,i]!=0):
             table[i,:]/=table[i%n,i]
@@ -128,6 +139,7 @@ def identityInsideMatrix(table):
                     table[k,:]-=table[k,i]*table[i%n,:]
             basis += 1
         i += 1
+    '''
     return table
 
 A = np.matrix([
@@ -137,8 +149,18 @@ A = np.matrix([
     [0.,-10.,-2.,0.,1.,0.,-6.],
 ])
 
-num1=canonVector(A[:,0])
+#num1=identityInsideMatrix(A)
 
-print(A[:,0])
-print(num1)
+#print(A[:,4])
+#print(num1)
+
+n,m=A.shape
+i=0
+while(i < m):
+    aux1=canonVector(A[:,i])
+    print(aux1)
+    print(A[:,i])
+    i+=1
+
+
 # %%
