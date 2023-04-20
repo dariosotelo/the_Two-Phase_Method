@@ -90,4 +90,55 @@ print(col_to_np_array(A,-1))
 
 
 
+
+# %%
+import numpy as np
+#This section of the code is used to ask the user a matrix and it 
+#Thi method receives a matrix as a paramether 
+#and adds canonic vectors which are missing in order to build an identity matrix inside of our matrix
+
+#this code returns a negative value if it is not a canon vector.
+#it returns the position of the canon vector.
+def canonVector(vector):
+    if len(vector)==0:
+        return -99
+    i=0
+    sum=0
+    por=-1
+    while(i<len(vector)):
+        if (vector[i]==1):
+            sum+=vector[i]
+            pos=i
+        i+=1
+    if sum==1:
+        return pos
+    else:
+        return -1
+
+
+def identityInsideMatrix(table):
+    n,m=table.shape
+    i = 0
+    basis = 0
+    while i < m and basis < n - 1:
+        if (table[i,i]!=0):
+            table[i,:]/=table[i%n,i]
+            for k in range(n):
+                if k!= i%n:
+                    table[k,:]-=table[k,i]*table[i%n,:]
+            basis += 1
+        i += 1
+    return table
+
+A = np.matrix([
+    [0.,5.,50.,1.,1.,0.,10.],
+    [1.,-15.,2.,0.,0.,0.,2.],
+    [0.,1.,1.,0.,1.,1.,6.],
+    [0.,-10.,-2.,0.,1.,0.,-6.],
+])
+
+num1=canonVector(A[:,0])
+
+print(A[:,0])
+print(num1)
 # %%
