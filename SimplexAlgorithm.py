@@ -57,9 +57,12 @@ def simplex(table):
     # Iterate until the objective function coefficients are all non-negative
     while np.any(table[-1, :-1] < 0) and iterations < 1000:
         vec_c = row_to_np_array(table,-1)
-        j = first_negative_cost(vec_c[:-1])
-        col_j = col_to_np_array(table,j)
         vec_b = col_to_np_array(table,-1)
+        
+        j = first_negative_cost(vec_c[:-1])
+        
+        col_j = col_to_np_array(table,j)
+        
         i = lowest_positive_ratio(col_j[:-1],vec_b[:-1])
         # Update the simplex table using the pivot row i and pivot column j
         table[i, :] /= table[i, j]
@@ -78,11 +81,18 @@ A = np.matrix([
 ])
 simplex(A)
 # %%
+# A = np.matrix([
+#     [0.,5.,50.,1.,1.,0.,10.],
+#     [1.,-15.,2.,0.,0.,0.,2.],
+#     [0.,1.,1.,0.,1.,1.,6.],
+#     [0.,-10.,-2.,0.,1.,0.,-6.],
+# ])
+
 A = np.matrix([
     [0.,5.,50.,1.,1.,0.,10.],
     [1.,-15.,2.,0.,0.,0.,2.],
     [0.,1.,1.,0.,1.,1.,6.],
-    [0.,-10.,-2.,0.,1.,0.,-6.],
+    [0.,-9.,-1.,0.,2.,1.,0.],
 ])
 
 A[:-1, 2]
@@ -90,4 +100,5 @@ print(col_to_np_array(A,-1))
 
 
 
+#%%
 # %%
