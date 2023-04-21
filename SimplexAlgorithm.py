@@ -24,10 +24,6 @@ def lowest_positive_ratio(vector_xj,vector_b):
     result = np.where(ratios == ratios_sort[result_sort[0][0]])
     # Return lowest_positive_ratio
     return result[0][0]
-## Test
-lista = np.array([-1,2.,-2.,1.,6.,-9.])
-b = np.array([1,1.,1.,1.,1.,1.])
-lowest_positive_ratio(lista,b)
 #%%
 def row_to_np_array(matrix_A,row):
     n,m = np.shape(matrix_A)
@@ -41,6 +37,20 @@ def col_to_np_array(matrix_A,col):
     for i in range(n):
         vect[i] = matrix_A[i,col]
     return vect
+#%%
+def make_canonical_basis(table):
+    n,m=table.shape
+    basis = {i  for i in range(n-1)}
+    while basis:
+        for e_i in basis :
+            if (table[e_i,e_i] != 0):
+                table[e_i,:]/=table[e_i,e_i]
+                for k in range(n):
+                    if k!= e_i:
+                        table[k,:]-=table[k,e_i]*table[e_i,:]
+                basis.remove(e_i)
+                break
+    return table
 #%% 
 def simplex(table):
     """
@@ -54,6 +64,7 @@ def simplex(table):
     """
     # Initialize the iteration counter
     iterations = 0
+    table = make_canonical_basis(table)
     # Iterate until the objective function coefficients are all non-negative
     while np.any(table[-1, :-1] < 0) and iterations < 1000:
         vec_c = row_to_np_array(table,-1)
@@ -72,14 +83,7 @@ def simplex(table):
         # Increment the iteration counter
         iterations += 1
     return table
-##Tests
-A = np.matrix([
-    [0.,5.,50.,1.,1.,0.,10.],
-    [1.,-15.,2.,0.,0.,0.,2.],
-    [0.,1.,1.,0.,1.,1.,6.],
-    [0.,-10.,-2.,0.,1.,0.,-6.],
-])
-simplex(A)
+
 # %%
 # A = np.matrix([
 #     [0.,5.,50.,1.,1.,0.,10.],
@@ -94,11 +98,74 @@ A = np.matrix([
     [0.,1.,1.,0.,1.,1.,6.],
     [0.,-9.,-1.,0.,2.,1.,0.],
 ])
-
-A[:-1, 2]
-print(col_to_np_array(A,-1))
-
-
-
-#%%
+simplex(A)
 # %%
+import numpy as np
+#This section of the code is used to ask the user a matrix and it 
+#Thi method receives a matrix as a paramether 
+#and adds canonic vectors which are missing in order to build an identity matrix inside of our matrix
+
+#this code returns a negative value if it is not a canon vector.
+#it returns the position of the canon vector.
+def canonVector(vector):
+    if len(vector)==0:
+        return -99
+    i=0
+    sum=0
+    pos=-1
+    while(i<len(vector)):
+        sum+=vector[i]
+        if (vector[i]==1):
+            #sum+=vector[i]
+            pos=i
+        i+=1
+    if sum==1:
+        return pos
+    else:
+        return -1
+
+
+def identityInsideMatrix(table):
+    n,m=table.shape
+    i=0
+    j=0
+    basis=0
+    canonList=[]
+    while j<m:
+        print(j)
+        if (canonVector(table[:, j])>0):
+            canonList.append(canonVector(table[:,j]))
+            print(canonList)
+        j+=1
+    print(canonList)
+    '''''
+    while i < m and basis < n - 1:
+        if (table[i,i]!=0):
+            table[i,:]/=table[i%n,i]
+            for k in range(n):
+                if k!= i%n:
+                    table[k,:]-=table[k,i]*table[i%n,:]
+            basis += 1
+        i += 1
+    '''
+    return table
+
+A = np.matrix([
+    [0.,5.,50.,1.,1.,0.,10.],
+    [1.,-15.,2.,0.,0.,0.,2.],
+    [0.,1.,1.,0.,1.,1.,6.],
+    [0.,-10.,-2.,0.,1.,0.,-6.],
+])
+
+#num1=identityInsideMatrix(A)
+
+#print(A[:,4])
+#print(num1)
+
+n,m=A.shape
+i=0
+while(i < m):
+    aux1=canonVector(A[:,i])
+    print(aux1)
+    print(A[:,i])
+    i+=1
