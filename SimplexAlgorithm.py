@@ -101,21 +101,20 @@ A = np.matrix([
 simplex(A)
 
 # %%
-import numpy as np
 #This section of the code is used to ask the user a matrix and it 
 #Thi method receives a matrix as a paramether 
 #and adds canonic vectors which are missing in order to build an identity matrix inside of our matrix
 
 #this code returns a negative value if it is not a canon vector.
 #it returns the position of the canon vector.
-def canonVector(vector):
+def canonVector(vector, n):
     if len(vector)==0:
         return -99
     i=0
-    sum=0
+    sum = 0
     pos=-1
-    while(i<len(vector)):
-        sum+=vector[i]
+    while(i<n):
+        sum+=abs(vector[i])
         if (vector[i]==1):
             pos=i
         i+=1
@@ -136,32 +135,33 @@ def identityInsideMatrix(table):
     n,m=table.shape
     i=0
     j=0
-    basis=0
-    posCol=-1
     canonColumns=[]
     canonList=[]
     missingCanonVectors=[]
     #We build a list which contains the canon vectors inside the matrix
     #this is used to increase efficiency
     while j<m:
-        if (canonVector(table[:, j])>=0):
-            canonList.append(canonVector(table[:,j]))
+        pos = canonVector(table[:, j],n-1)
+        if (pos>=0):
+            canonList.append(pos)
             canonColumns.append(j)
         j+=1
-    #Este sort creo que es opcional
-    canonList.sort()
     #This list is used to check which canon vectors are needed
     #it is filled with the canon vectors that are not in the matrix
-    aux=list(range(0,n))
+    aux=list(range(0,n-1))
     missingCanonVectors = [x for x in aux if x not in canonList]
     #Si algo quiebra, es esta variable i
-    i=len(canonColumns)
-    while i<n and len(missingCanonVectors)!=0:
+    i=0
+    while i<m-1 and len(missingCanonVectors)!=0:
         if i not in canonColumns:
             newCanonPosition=missingCanonVectors.pop(0)
             turnToCanonColumn(table, newCanonPosition, i)
         i+=1
-
+    for canonVectorVar in canonColumns:
+        if table[-1,canonVectorVar]!=0:
+            pos = canonVector(table[:, canonVectorVar],n-1)
+            table[-1,:]-=table[pos,:]*table[-1, canonVectorVar]
+            print(table[-1,:])
     return table
 
 
@@ -172,9 +172,11 @@ A = np.matrix([
     [0.,1.,1.,0.,1.,1.,6.],
     [0.,-10.,-2.,0.,1.,0.,-6.],
 ])
-print(A)
 
+print(A)
 A=identityInsideMatrix(A)
 
 print(A)
 
+
+# %%
