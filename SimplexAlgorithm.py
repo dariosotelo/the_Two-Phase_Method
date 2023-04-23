@@ -99,7 +99,7 @@ A = np.matrix([
     [0.,-9.,-1.,0.,2.,1.,0.],
 ])
 simplex(A)
-# %%
+
 # %%
 import numpy as np
 #This section of the code is used to ask the user a matrix and it 
@@ -146,7 +146,6 @@ def identityInsideMatrix(table):
     while j<m:
         if (canonVector(table[:, j])>=0):
             canonList.append(canonVector(table[:,j]))
-            print(canonList)
             canonColumns.append(j)
         j+=1
     #Este sort creo que es opcional
@@ -178,5 +177,4 @@ print(A)
 A=identityInsideMatrix(A)
 
 print(A)
-
 
