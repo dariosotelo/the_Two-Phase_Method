@@ -100,6 +100,7 @@ A = np.matrix([
 ])
 simplex(A)
 # %%
+# %%
 import numpy as np
 #This section of the code is used to ask the user a matrix and it 
 #Thi method receives a matrix as a paramether 
@@ -123,54 +124,59 @@ def canonVector(vector):
     else:
         return -1
 
+#This function turns the whole column into 0s except the value given in row and column, it turns that one into 1
+def turnToCanonColumn(matrix, row, column):
+    matrix[row,:] /= matrix[row, column]
+    for i in range(matrix.shape[0]):
+        if i!=row:
+            matrix[i,:]-=matrix[row,:]*matrix[i, column]
+    return matrix
 
 def identityInsideMatrix(table):
     n,m=table.shape
     i=0
     j=0
     basis=0
+    posCol=-1
+    canonColumns=[]
     canonList=[]
+    missingCanonVectors=[]
+    #We build a list which contains the canon vectors inside the matrix
+    #this is used to increase efficiency
     while j<m:
-        #print(j)
-        if (canonVector(table[:, j])>0):
+        if (canonVector(table[:, j])>=0):
             canonList.append(canonVector(table[:,j]))
             print(canonList)
+            canonColumns.append(j)
         j+=1
-    print(canonList)
+    #Este sort creo que es opcional
+    canonList.sort()
+    #This list is used to check which canon vectors are needed
+    #it is filled with the canon vectors that are not in the matrix
+    aux=list(range(0,n))
+    missingCanonVectors = [x for x in aux if x not in canonList]
+    #Si algo quiebra, es esta variable i
+    i=len(canonColumns)
+    while i<n and len(missingCanonVectors)!=0:
+        if i not in canonColumns:
+            newCanonPosition=missingCanonVectors.pop(0)
+            turnToCanonColumn(table, newCanonPosition, i)
+        i+=1
 
-    '''''
-    while i < m and basis < n - 1:
-        if (table[i,i]!=0):
-            table[i,:]/=table[i%n,i]
-            for k in range(n):
-                if k!= i%n:
-                    table[k,:]-=table[k,i]*table[i%n,:]
-            basis += 1
-        i += 1
-    '''
     return table
 
+
+#Test
 A = np.matrix([
     [0.,5.,50.,1.,1.,0.,10.],
-    [1.,-15.,2.,0.,0.,0.,2.],
+    [1.,-15.,2.,0.,0.,7.,2.],
     [0.,1.,1.,0.,1.,1.,6.],
     [0.,-10.,-2.,0.,1.,0.,-6.],
 ])
 print(A)
-num1=identityInsideMatrix(A)
 
-#print(A[:,4])
-#print(num1)
+A=identityInsideMatrix(A)
 
-n,m=A.shape
-i=0
-'''''
-while(i < m):
-    aux1=canonVector(A[:,i])
-    print(aux1)
-    print(A[:,i])
-    i+=1
+print(A)
 
-'''
 
-# %%
