@@ -1,0 +1,44 @@
+  LINGO/OSX64 20.0.8 (17 Oct 2022), LINDO API 14.0.5099.166
+
+  Licensee info: Eval Use Only
+  License expires: 20 AUG 2023
+
+  Global optimal solution found.
+  Objective value:                              7.000000
+  Infeasibilities:                              0.000000
+  Total solver iterations:                             4
+  Elapsed runtime seconds:                          0.09
+
+  Model Class:                                        LP
+
+  Total variables:                      5
+  Nonlinear variables:                  0
+  Integer variables:                    0
+
+  Total constraints:                   10
+  Nonlinear constraints:                0
+
+  Total nonzeros:                      22
+  Nonlinear nonzeros:                   0
+
+
+
+                                Variable           Value        Reduced Cost
+                                      X1        1.666667            0.000000
+                                      X2       0.3333333            0.000000
+                                      X3        0.000000            5.000000
+                                      X4        0.000000            3.000000
+                                      X5        0.000000            6.000000
+
+                                     Row    Slack or Surplus      Dual Price
+                                       1        7.000000           -1.000000
+                                       2        0.000000           -6.000000
+                                       3        8.000000            0.000000
+                                       4        0.000000            1.000000
+                                       5        1.666667            0.000000
+                                       6        1.666667            0.000000
+                                       7       0.3333333            0.000000
+                                       8        0.000000            0.000000
+                                       9        0.000000            0.000000
+                                      10        0.000000            0.000000
+

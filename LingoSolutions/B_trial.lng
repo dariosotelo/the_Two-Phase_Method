@@ -1,0 +1,41 @@
+  LINGO/OSX64 20.0.8 (17 Oct 2022), LINDO API 14.0.5099.166
+
+  Licensee info: Eval Use Only
+  License expires: 20 AUG 2023
+
+  No feasible solution found.
+  Infeasibilities:                              1.000000
+  Total solver iterations:                             6
+  Elapsed runtime seconds:                          8.88
+
+  Model Class:                                        LP
+
+  Total variables:                      4
+  Nonlinear variables:                  0
+  Integer variables:                    0
+
+  Total constraints:                    9
+  Nonlinear constraints:                0
+
+  Total nonzeros:                      21
+  Nonlinear nonzeros:                   0
+
+
+
+                                Variable           Value        Reduced Cost
+                                      X1        1.000000            0.000000
+                                      X2        0.000000            2.000000
+                                      X3        0.000000            2.000000
+                                      X4        2.500000            0.000000
+
+                                     Row    Slack or Surplus      Dual Price
+                                       1        1.000000           -1.000000
+                                       2       -1.000000          -0.2400000E+11
+                                       3        1.500000            0.000000
+                                       4        0.000000           0.2400000E+11
+                                       5        0.000000          -0.2400000E+11
+                                       6        1.000000            0.000000
+                                       7        0.000000            0.000000
+                                       8        0.000000            0.000000
+                                       9        2.500000            0.000000
+
