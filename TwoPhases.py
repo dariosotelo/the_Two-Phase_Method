@@ -98,7 +98,7 @@ def TwoPhases(matrix_A, vector_b, vector_c):
     final_table_1p = simplex(table_0_1p)
 
     # Check if the problem has a feasible solution; if not, raise an exception
-    if final_table_1p[-1][-1] != 0:
+    if abs(final_table_1p[-1][-1]) >= 10**-5:
         raise Exception("The problem has no feasible solution")
 
     # Second phase: generate simplex table for the second phase and solve it using simplex algorithm

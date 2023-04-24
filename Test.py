@@ -232,7 +232,7 @@ def TwoPhases(matrix_A, vector_b, vector_c):
     final_table_1p = simplex(table_0_1p)
 
     # Check if the problem has a feasible solution; if not, raise an exception
-    if final_table_1p[-1][-1] != 0:
+    if abs(final_table_1p[-1][-1]) >= 10**-5:
         raise Exception("The problem has no feasible solution")
 
     # Second phase: generate simplex table for the second phase and solve it using simplex algorithm
@@ -245,24 +245,44 @@ def TwoPhases(matrix_A, vector_b, vector_c):
     
 # %%
 
-# A = np.matrix([
-#     [3.,4.,1.,0.],
-#     [2.,-1.,0.,-1.]
-# ])
-# b = np.array([20.,2.])
-# c = np.array([1.,2.,0.,0.])
-# print("Sol. Prueba Libro: ",TwoPhases(A,b,c))
-
-# #B trial:
-# matrix_b = np.matrix([
-#     [1., 1., -1., 0., -1., 0., 0., 0.],
-#     [1., 1., 2., 3., 0., 1., 0., 0.],
-#     [1., 2., -1., 2., 0., 0., 1., 0.],
-#     [0., 1., 0., 2., 0., 0., 0., -1.]
-# ])
-# vector_obj_b = np.array([2.,10., 6., 5.])
-# vector_cost_b = np.array([3., 6., -1., 2., 0., 0., 0., 0.,])
-# print("Sol. Ejercicio B Modelado: ",TwoPhases(matrix_b,vector_obj_b,vector_cost_b))
+A = np.matrix([
+    [3.,4.,1.,0.],
+    [2.,-1.,0.,-1.]
+])
+b = np.array([20.,2.])
+c = np.array([1.,2.,0.,0.])
+print("Sol. Prueba Libro: ",TwoPhases(A,b,c))
+#A trial
+# 1-19 x+20 x-20 X20a e1
+matrix_a = np.matrix([
+#   [1., 2., 3., 4., 5., 6., 7., 8., 9., 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,  -20,  a.,  e1, h1,  e2, h2, h3]
+    [1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 0.,   0.,  0.,  0., 0.,  0., 0., 0.],
+    [4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 0., 0.,   0.,  0., -1., 0.,  0., 0., 0.],
+    [2., 4., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.,  -1.,  0.,  0., 1.,  0., 0., 0.],
+    [0., 0., 4., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 4., 0., 0., 1.,  -1.,  0.,  0., 1., -1., 0., 0.],
+    [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.,   0., -1.,  0., 0.,  0., 1., 0.],
+    [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  -1., -1.,  0., 0.,  0., 0., 1.],
+])
+#               [1., 2., 3., 4., 5., 6., 7., 8., 9., 10, 11, 12, 13, 14, 15, 16, 17, 18,  19, 20,-20,  a, e1, h1, e2, h2, h3]
+vector_cost_a = [1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., -1., 0., 0., -1, 0., 0., 0., 0., 0.]
+vector_obj_a = np.array([2.,2., 2., 0., 0., 0.])
+try:
+    print("Sol. PPL A Modelado: ",TwoPhases(matrix_a,vector_obj_a,vector_cost_a))
+except:
+    print("Sol. PPL A Modelado: No tiene solucion feasible ")
+#B trial:
+matrix_b = np.matrix([
+    [1., 1., -1., 0., -1., 0., 0., 0.],
+    [1., 1., 2., 3., 0., 1., 0., 0.],
+    [1., 2., -1., 2., 0., 0., 1., 0.],
+    [0., 1., 0., 2., 0., 0., 0., -1.]
+])
+vector_obj_b = np.array([2.,10., 6., 5.])
+vector_cost_b = np.array([3., 6., -1., 2., 0., 0., 0., 0.,])
+try:
+    print("Sol. PPL B Modelado: ",TwoPhases(matrix_b,vector_obj_b,vector_cost_b))
+except:
+    print("Sol. PPL B Modelado: No tiene solucion feasible ")
 #C trial:
 matrix_c = np.matrix([
     [1., 1., -1., 0., 0., -1., 0., 0.],
@@ -272,6 +292,9 @@ matrix_c = np.matrix([
 ])
 vector_obj_c = np.array([2.,10.,5., 2. ])
 vector_cost_c = np.array([3., 6., -1., 2., 7., 0., 0., 0.])
+try:
+    print("Sol. Ejercicio C Modelado: ",TwoPhases(matrix_c,vector_obj_c,vector_cost_c))
+except:
+    print("Sol. PPL C Modelado: No tiene solucion feasible ")
 
-print("Sol. Ejercicio C Modelado: ",TwoPhases(matrix_c,vector_obj_c,vector_cost_c))
 # %%
