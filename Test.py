@@ -252,6 +252,8 @@ A = np.matrix([
 b = np.array([20.,2.])
 c = np.array([1.,2.,0.,0.])
 print("Sol. Prueba Libro: ",TwoPhases(A,b,c))
+
+
 #A trial
 # 1-19 x+20 x-20 X20a e1
 matrix_a = np.matrix([
@@ -269,7 +271,7 @@ vector_obj_a = np.array([2.,2., 2., 0., 0., 0.])
 try:
     print("Sol. PPL A Modelado: ",TwoPhases(matrix_a,vector_obj_a,vector_cost_a))
 except:
-    print("Sol. PPL A Modelado: No tiene solucion feasible ")
+    print("Sol. PPL A Modelado: No tiene solucion factible ")
 #B trial:
 matrix_b = np.matrix([
     [1., 1., -1., 0., -1., 0., 0., 0.],
@@ -282,7 +284,7 @@ vector_cost_b = np.array([3., 6., -1., 2., 0., 0., 0., 0.,])
 try:
     print("Sol. PPL B Modelado: ",TwoPhases(matrix_b,vector_obj_b,vector_cost_b))
 except:
-    print("Sol. PPL B Modelado: No tiene solucion feasible ")
+    print("Sol. PPL B Modelado: No tiene solucion factible ")
 #C trial:
 matrix_c = np.matrix([
     [1., 1., -1., 0., 0., -1., 0., 0.],
@@ -295,6 +297,6 @@ vector_cost_c = np.array([3., 6., -1., 2., 7., 0., 0., 0.])
 try:
     print("Sol. Ejercicio C Modelado: ",TwoPhases(matrix_c,vector_obj_c,vector_cost_c))
 except:
-    print("Sol. PPL C Modelado: No tiene solucion feasible ")
+    print("Sol. PPL C Modelado: No tiene solucion factible ")
 
 # %%
