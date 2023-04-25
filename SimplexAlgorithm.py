@@ -8,7 +8,7 @@ def first_negative_cost(vector_c):
             j += 1
         else:
             return j
-#%%
+
 def find_the_first_positive(vector):
     n = len(vector)
     j = 0
@@ -24,7 +24,7 @@ def lowest_positive_ratio(vector_xj,vector_b):
     result = np.where(ratios == ratios_sort[result_sort[0][0]])
     # Return lowest_positive_ratio
     return result[0][0]
-#%%
+
 def row_to_np_array(matrix_A,row):
     n,m = np.shape(matrix_A)
     vect = np.zeros(m)
@@ -37,7 +37,7 @@ def col_to_np_array(matrix_A,col):
     for i in range(n):
         vect[i] = matrix_A[i,col]
     return vect
-#%%
+
 def make_canonical_basis(table):
     n,m=table.shape
     basis = {i  for i in range(n-1)}
@@ -51,7 +51,7 @@ def make_canonical_basis(table):
                 basis.remove(e_i)
                 break
     return table
-#%% 
+
 def simplex(table):
     """
     Solves a linear programming problem in standard form using the simplex algorithm.
@@ -64,7 +64,7 @@ def simplex(table):
     """
     # Initialize the iteration counter
     iterations = 0
-    table = make_canonical_basis(table)
+    table = identityInsideMatrix(table)
     # Iterate until the objective function coefficients are all non-negative
     while np.any(table[-1, :-1] < 0) and iterations < 1000:
         vec_c = row_to_np_array(table,-1)
@@ -84,23 +84,6 @@ def simplex(table):
         iterations += 1
     return table
 
-# %%
-# A = np.matrix([
-#     [0.,5.,50.,1.,1.,0.,10.],
-#     [1.,-15.,2.,0.,0.,0.,2.],
-#     [0.,1.,1.,0.,1.,1.,6.],
-#     [0.,-10.,-2.,0.,1.,0.,-6.],
-# ])
-
-A = np.matrix([
-    [0.,5.,50.,1.,1.,0.,10.],
-    [1.,-15.,2.,0.,0.,0.,2.],
-    [0.,1.,1.,0.,1.,1.,6.],
-    [0.,-9.,-1.,0.,2.,1.,0.],
-])
-simplex(A)
-
-# %%
 #This section of the code is used to ask the user a matrix and it 
 #Thi method receives a matrix as a paramether 
 #and adds canonic vectors which are missing in order to build an identity matrix inside of our matrix
