@@ -133,7 +133,6 @@ def identityInsideMatrix(table):
     #it is filled with the canon vectors that are not in the matrix
     aux=list(range(0,n-1))
     missingCanonVectors = [x for x in aux if x not in canonList]
-    #Si algo quiebra, es esta variable i
     i=0
     while i<m-1 and len(missingCanonVectors)!=0:
         if i not in canonColumns:
@@ -144,8 +143,21 @@ def identityInsideMatrix(table):
         if table[-1,canonVectorVar]!=0:
             pos = canonVector(table[:, canonVectorVar],n-1)
             table[-1,:]-=table[pos,:]*table[-1, canonVectorVar]
-            print(table[-1,:])
     return table
 
+#This method returns the canon vector that was found and it's corresponding position
+#The format of return is a list of lists where the first element of the lists is the
+#corresponding canon vector, i. e., it is the value of n where En is the nth canon vector
+#The second value is the position inside of the matrix
+def canonVectorAndPosition(matrix):
+    n,m=matrix.shape
+    i=0
+    j=0
+    list=[]
+    for j in range(m):
+        canonVecVar=canonVector(matrix[:,j], n+1)
+        if canonVecVar>=0:
+            list.append([canonVecVar, j])
+    return list
 
 # %%
