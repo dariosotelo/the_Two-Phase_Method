@@ -1,6 +1,7 @@
+#%%
 from SimplexAlgorithm import *
 from TwoPhases import *
-# %%
+
 if __name__=='__main__':
     #These are three linear programming problems which are solved by the code in the SimplexAlgorithm.py and TwoPhases.py files:
         
@@ -96,3 +97,4 @@ if __name__=='__main__':
     
     
     
+# %%
