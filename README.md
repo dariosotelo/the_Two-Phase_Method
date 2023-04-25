@@ -1,7 +1,7 @@
-# the_Two-Phase_Method
-This code uses the Two-Phase method to solve linear programming problems using the simplex algorithm
+# The Two-Phase Method
+This code uses the Two-Phase method to solve linear programming problems using the simplex algorithm.
 
-The two-phase method involves two phases. In the first phase, an auxiliary problem is solved to find a feasible solution
+The two-phase method involves two phases. In the first phase, an auxiliary problem is solved to find a feasible solution.
 This problem involves adding artificial variables to the objective function and solving for a minimum value.
 The objective is to find a feasible solution for the original problem by minimizing the sum of the artificial variables.
 
