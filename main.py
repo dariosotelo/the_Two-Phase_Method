@@ -68,6 +68,66 @@ if __name__=='__main__':
         print("With the value of the objective function:", auxprint[1])
     except:
         print("The LPP has no feasible solution")
+
+    #--------------------------------------------------------------
+    A=np.array([
+        [1., 0., 0., 0., 1., 0., 0., 0.],
+        [20., 1., 0., 0., 0., 1., 0., 0.],
+        [200., 20., 1., 0., 0., 0., 1., 0.],
+        [2000., 200., 20., 1., 0., 0., 0., 1.]
+        ])
     
+    b_vector=np.array([1., 100., 10000., 1000000.])
+    c_vector=np.array([-1000., -100., -10., -1., 0., 0., 0., 0.])
+
+    print("")
+    print("----------------------------------------------")
+    try:
+        auxprint=TwoPhases(A, b_vector, c_vector)
+        print("The solution of the fourth LPP is: ")
+        for i in range(len(auxprint[0])):
+            print("Variable", i+1, "is:", auxprint[0][i])
+        print("With the value of the objective function:", auxprint[1])
+    except:
+        print("The LPP has no feasible solution")
+    
+    print("")
+    B=np.array([
+        [1., 1., 0.],
+        [2., 0., -1.]    
+    ])
+    b_vector=np.array([1., -1., 0.])
+    c_vector=np.array([4., 2.])
+
+    try:
+        auxprint=TwoPhases(B, b_vector, c_vector)
+        print("The solution of the fifth LPP is: ")
+        for i in range(len(auxprint[0])):
+            print("Variable", i+1, "is:", auxprint[0][i])
+        print("With the value of the objective function:", auxprint[1])
+    except:
+        print("The fifth LPP has no feasible solution")
+    
+
+    print("")
+    C=np.array([
+        [1., 1., 1., 0., 0., -1., 0., 0., 0., 0.],
+        [-2., -1., 0., -1., 1., 0., -1., 0., 0., 0.],
+        [1., 1., 2., 3., 0., 0., 0., -1., 0., 0.],
+        [0., 1., 0., 2., 0., 0., 0., 0., 0., 1.]
+    ])
+
+    b_vector=np.array([2., 1., 10., 6., 5.])
+    c_vector=np.array([8., -2., 1., 2., 5., 0., 0., 0., 0., 0.])
+
+    try:
+        auxprint=TwoPhases(C, b_vector, c_vector)
+        print("The solution of the sixth LPP is: ")
+        for i in range(len(auxprint[0])):
+            print("Variable", i+1, "is:", auxprint[0][i])
+        print("With the value of the objective function:", auxprint[1])
+    except:
+        print("The sixth LPP has no feasible solution")
+
     
 # %%
