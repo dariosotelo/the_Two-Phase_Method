@@ -96,9 +96,17 @@ if __name__=='__main__':
         [1., 1., 0.],
         [2., 0., -1.]    
     ])
-    b_vector=np.array([1., -1., 0.])
-    c_vector=np.array([4., 2.])
+    c_vector=np.array([1., -1., 0.])
+    b_vector=np.array([4., 2.])
+    '''''
+    B=np.array([
+        [1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 0],
+        [2., 2., 2., 2., 2., 2., 2., 2., 2., 2., 2., 2., 2., 2., 2., 2., 2., 2., 0., -1]
+    ])
 
+    b_vector=np.array([4., 2.])
+    c_vector=np.array([1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., -1., 0.])
+    '''
     try:
         auxprint=TwoPhases(B, b_vector, c_vector)
         print("The solution of the fifth LPP is: ")
