@@ -1,7 +1,7 @@
 #%%
 # Import required libraries
 import numpy as np
-#%%
+np.seterr(divide='ignore', invalid='ignore')
 def first_negative_cost(vector_c):
     n = len(vector_c)
     j = 0
@@ -10,7 +10,7 @@ def first_negative_cost(vector_c):
             j += 1
         else:
             return j
-#%%
+
 def find_the_first_positive(vector):
     n = len(vector)
     j = 0
@@ -26,7 +26,6 @@ def lowest_positive_ratio(vector_xj,vector_b):
     result = np.where(ratios == ratios_sort[result_sort[0][0]])
     # Return lowest_positive_ratio
     return result[0][0]
-#%%
 def row_to_np_array(matrix_A,row):
     n,m = np.shape(matrix_A)
     vect = np.zeros(m)
@@ -39,8 +38,9 @@ def col_to_np_array(matrix_A,col):
     for i in range(n):
         vect[i] = matrix_A[i,col]
     return vect
+def is_unbounded(table):
+    return np.any(np.all(table <= 0, axis=0))
 
-#%% 
 def simplex(table):
     """
     Solves a linear programming problem in standard form using the simplex algorithm.
@@ -55,7 +55,7 @@ def simplex(table):
     iterations = 0
     table = identityInsideMatrix(table)
     # Iterate until the objective function coefficients are all non-negative
-    while np.any(table[-1, :-1] < 0) and iterations < 1000:
+    while np.any(table[-1, :-1] < 0) and iterations < 100000:
         vec_c = row_to_np_array(table,-1)
         vec_b = col_to_np_array(table,-1)
         
@@ -71,9 +71,10 @@ def simplex(table):
                 table[k, :] -= table[k, j] * table[i, :]
         # Increment the iteration counter
         iterations += 1
+        if is_unbounded(table):
+            return table
     return table
 
-# %%
 #This section of the code is used to ask the user a matrix and it 
 #This method receives a matrix as a paramether 
 #and adds canonic vectors which are missing in order to build an identity matrix inside of our matrix
@@ -123,7 +124,6 @@ def identityInsideMatrix(table):
     #it is filled with the canon vectors that are not in the matrix
     aux=list(range(0,n-1))
     missingCanonVectors = [x for x in aux if x not in canonList]
-    #Si algo quiebra, es esta variable i
     i=0
     while i<m-1 and len(missingCanonVectors)!=0:
         if i not in canonColumns:
@@ -136,7 +136,7 @@ def identityInsideMatrix(table):
             table[-1,:]-=table[pos,:]*table[-1, canonVectorVar]
     return table
 
-#%%
+
 # Define a function to generate the simplex table for the first phase of the two-phase simplex algorithm
 def generate_simplex_table_first_phase(matrix_A, vector_b):
     # Get the dimensions of matrix_A
@@ -158,12 +158,7 @@ def generate_simplex_table_first_phase(matrix_A, vector_b):
         table_0[-1,m+i] = 1
     # Return the completed table
     return table_0
-#%% Tests
-A = np.matrix([[1,2],[1,2]])
-b = np.array([7,8])
 
-generate_simplex_table_first_phase(A,b)
-#%%
 def from_first_phase_generate_simplex_table_second_phase(final_table_1p, vector_c):
     # Get the dimensions of the first-phase final table
     n1P, m1P = np.shape(final_table_1p)
@@ -183,14 +178,31 @@ def from_first_phase_generate_simplex_table_second_phase(final_table_1p, vector_
         table_0[-1,i] = vector_c[i]
     # Return the completed table
     return table_0
-#%% Tests
+
+
+# Tests
 A =np.matrix([[1.,0.,1.,2.5,0.,7.],
                [0.,1.,0.,1.,1.5,8.],
                [0.,0., 0,5., 5. ,0.]])
 c = [1,2,3]
 from_first_phase_generate_simplex_table_second_phase(A,c)
-#%%
-def get_solutions_simplex(final_table):
+
+#This method returns the canon vector that was found and it's corresponding position
+#The format of return is a list of lists where the first element of the lists is the
+#corresponding canon vector, i. e., it is the value of n where En is the nth canon vector
+#The second value is the position inside of the matrix
+def canonVectorAndPosition(matrix):
+    n,m=matrix.shape
+    i=0
+    j=0
+    list=[]
+    for j in range(m):
+        canonVecVar=canonVector(matrix[:,j], n-1)
+        if canonVecVar>=0:
+            list.append([j,canonVecVar-1])
+    return list
+
+def get_solutions_simplex1(final_table):
     # Get the dimensions of the final simplex table
     n2P, m2P = np.shape(final_table)
     # Get the number of variables and constraints in the problem
@@ -212,7 +224,7 @@ def get_solutions_simplex(final_table):
                     break
                 j += 1
             # Save the value of the corresponding entry in the b vector
-            vector_sol[i] = final_table[j, -1]
+            vector_sol[i] = final_table[j, -1]/final_table[j, -1]
             # Increment the number of non-zero solutions found
             sol_n += 1
         else:
@@ -220,59 +232,82 @@ def get_solutions_simplex(final_table):
     
     # Return the solution vector and the minimum value of the objective function
     return vector_sol, min_func_obj
-#%% tests
-A =np.matrix([[1.,0.,1.,2.5,0.,7.],
-               [0.,1.,0.,1.,1.5,8.],
-               [0.,0., 1,5., 5. ,5.]])
-get_solutions_simplex(A)
-#%%
+
+def get_solutions_simplex2(final_table):
+    # Get the dimensions of the final simplex table
+    n2P, m2P = np.shape(final_table)
+    # Get the number of variables and constraints in the problem
+    n, m = n2P - 1, m2P - 1
+    # Initialize the solution vector
+    vector_sol = np.zeros(m)
+    pos_solutions = canonVectorAndPosition(final_table)
+    # Compute the minimum value of the objective function (the negative of the bottom-right entry)
+    min_func_obj = -final_table[n, m]
+    # Iterate over the columns of the final table to extract the solution vector
+    for pos in pos_solutions:
+        vector_sol[pos[0]] = final_table[pos[1], -1]
+    # Return the solution vector and the minimum value of the objective function
+    return vector_sol, min_func_obj
+
 def TwoPhases(matrix_A, vector_b, vector_c):
     # First phase: generate simplex table for the first phase and solve it using simplex algorithm
     table_0_1p = generate_simplex_table_first_phase(matrix_A, vector_b)
     final_table_1p = simplex(table_0_1p)
 
     # Check if the problem has a feasible solution; if not, raise an exception
+    if is_unbounded(final_table_1p):
+        print("the problem is unbounded")
+        print("The problem has no feasible solution")
+        return None
     if abs(final_table_1p[-1][-1]) >= 10**-5:
-        raise Exception("The problem has no feasible solution")
+        print("The problem has no feasible solution")
+        return None
 
     # Second phase: generate simplex table for the second phase and solve it using simplex algorithm
     table_0_2p = from_first_phase_generate_simplex_table_second_phase(final_table_1p, vector_c)
     final_table_2p = simplex(table_0_2p)
-
+    if is_unbounded(final_table_2p):
+        print("the problem is unbounded")
+        print("The problem has no feasible solution")
+        return None
     # Return the optimal solution (vector_sol) and the minimum function objective value (min_func_obj)
-    return get_solutions_simplex(final_table_2p)
+    print( get_solutions_simplex1(final_table_2p))
+    return None
 
     
-# %%
-
-A = np.matrix([
-    [3.,4.,1.,0.],
-    [2.,-1.,0.,-1.]
-])
-b = np.array([20.,2.])
-c = np.array([1.,2.,0.,0.])
-print("Sol. Prueba Libro: ",TwoPhases(A,b,c))
 
 
-#A trial
-# 1-19 x+20 x-20 X20a e1
+# A trial
 matrix_a = np.matrix([
-#   [1., 2., 3., 4., 5., 6., 7., 8., 9., 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,  -20,  a.,  e1, h1,  e2, h2, h3]
-    [1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 0.,   0.,  0.,  0., 0.,  0., 0., 0.],
-    [4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 0., 0.,   0.,  0., -1., 0.,  0., 0., 0.],
-    [2., 4., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.,  -1.,  0.,  0., 1.,  0., 0., 0.],
-    [0., 0., 4., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 4., 0., 0., 1.,  -1.,  0.,  0., 1., -1., 0., 0.],
-    [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.,   0., -1.,  0., 0.,  0., 1., 0.],
-    [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  -1., -1.,  0., 0.,  0., 0., 1.],
+#   [1., 2., 3., 4., 5., 6., 7., 8., 9., 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,  20,  -20,  a.,  e1, h1,  e2, h2, h3]
+    [1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,  0.,   0.,  0.,  0., 0.,  0., 0., 0.],
+    [4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 4., 0.,  0.,   0.,  0., -1., 0.,  0., 0., 0.],
+    [2., 4., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  1.,  -1.,  0.,  0., 1.,  0., 0., 0.],
+    [0., 0., 4., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 4., 0., 0.,  1.,  -1.,  0.,  0., 0., -1., 0., 0.],
+    [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  1.,   0., -1.,  0., 0.,  0., 1., 0.],
+    [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  0.,  -1., -1.,  0., 0.,  0., 0., 1.],
 ])
 #               [1., 2., 3., 4., 5., 6., 7., 8., 9., 10, 11, 12, 13, 14, 15, 16, 17, 18,  19, 20,-20,  a, e1, h1, e2, h2, h3]
 vector_cost_a = [1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., -1., 0., 0., -1, 0., 0., 0., 0., 0.]
 vector_obj_a = np.array([2.,2., 2., 0., 0., 0.])
-try:
-    print("Sol. PPL A Modelado: ",TwoPhases(matrix_a,vector_obj_a,vector_cost_a))
-except:
-    print("Sol. PPL A Modelado: No tiene solucion factible ")
-#B trial:
+print("Sol. PPL A Modelado: ")
+TwoPhases(matrix_a,vector_obj_a,vector_cost_a)
+# #Cambio de variable
+# matrix_a = np.matrix([
+# #   [1., 2., 3., 17,   y, 19,  20,  -20,  a.,  e1, h1,  e2, h2, h3]
+#     [1., 1., 1.,  1., 1., 1.,  0.,   0.,  0.,  0., 0.,  0., 0., 0.],
+#     [4., 4., 4.,  4., 4., 0.,  0.,   0.,  0., -1., 0.,  0., 0., 0.],
+#     [2., 4., 0.,  0., 0., 0.,  1.,  -1.,  0.,  0., 1.,  0., 0., 0.],
+#     [0., 0., 4.,  4., 0., 0.,  1.,  -1.,  0.,  0., 0., -1., 0., 0.],
+#     [0., 0., 0.,  0., 0., 0.,  1.,   0., -1.,  0., 0.,  0., 1., 0.],
+#     [0., 0., 0.,  0., 0., 0.,  0.,  -1., -1.,  0., 0.,  0., 0., 1.],
+# ])
+# #               [1., 2., 3.,  17, y,  19, 20,-20,  a, e1, h1, e2, h2, h3]
+# vector_cost_a = [1., 1., 1.,  1., 1., -1., 0., 0., -1, 0., 0., 0., 0., 0.]
+# vector_obj_a = np.array([2.,2., 2., 0., 0., 0.])
+# print("Sol. PPL A Modelado: ")
+# TwoPhases(matrix_a,vector_obj_a,vector_cost_a)
+# #B trial:
 matrix_b = np.matrix([
     [1., 1., -1., 0., -1., 0., 0., 0.],
     [1., 1., 2., 3., 0., 1., 0., 0.],
@@ -281,10 +316,9 @@ matrix_b = np.matrix([
 ])
 vector_obj_b = np.array([2.,10., 6., 5.])
 vector_cost_b = np.array([3., 6., -1., 2., 0., 0., 0., 0.,])
-try:
-    print("Sol. PPL B Modelado: ",TwoPhases(matrix_b,vector_obj_b,vector_cost_b))
-except:
-    print("Sol. PPL B Modelado: No tiene solucion factible ")
+
+print("Sol. PPL B Modelado: ")
+TwoPhases(matrix_b,vector_obj_b,vector_cost_b)
 #C trial:
 matrix_c = np.matrix([
     [1., 1., -1., 0., 0., -1., 0., 0.],
@@ -294,9 +328,37 @@ matrix_c = np.matrix([
 ])
 vector_obj_c = np.array([2.,10.,5., 2. ])
 vector_cost_c = np.array([3., 6., -1., 2., 7., 0., 0., 0.])
-try:
-    print("Sol. Ejercicio C Modelado: ",TwoPhases(matrix_c,vector_obj_c,vector_cost_c))
-except:
-    print("Sol. PPL C Modelado: No tiene solucion factible ")
+print("Sol. Ejercicio C Modelado: ")
+TwoPhases(matrix_c,vector_obj_c,vector_cost_c)
 
+A=np.array([
+        [1., 0., 0., 0., 1., 0., 0., 0.],
+        [20., 1., 0., 0., 0., 1., 0., 0.],
+        [200., 20., 1., 0., 0., 0., 1., 0.],
+        [2000., 200., 20., 1., 0., 0., 0., 1.]
+        ])
+    
+b_vector=np.array([1., 100., 10000., 1000000.])
+c_vector=np.array([-1000., -100., -10., -1., 0., 0., 0., 0.])
+print("Sol. Ejercicio A clase Modelado: ")
+TwoPhases(A,b_vector,c_vector)
+B=np.array([
+    [1., 1., 0.],
+    [2., 0., -1.]    
+])
+b_vector=np.array([4., 2.])
+c_vector=np.array([1., -1., 0.])
+print("Sol. Ejercicio B clase Modelado: ")
+TwoPhases(B,b_vector,c_vector)
+
+C=np.array([
+    [1., 1., 1., 0., 0., -1., 0., 0., 0., 0.],
+    [-2., -1., 0., -1., 1., 0., -1., 0., 0., 0.],
+    [1., 1., 2., 3., 0., 0., 0., -1., 0., 0.],
+    [0., 1., 0., 2., 0., 0., 0., 0., 0., 1.]
+])
+b_vector=np.array([2., 1., 10., 6., 5.])
+c_vector=np.array([8., -2., 1., 2., 5., 0., 0., 0., 0., 0.])
+print("Sol. Ejercicio C clase Modelado: ")
+TwoPhases(C,b_vector,c_vector)
 # %%
