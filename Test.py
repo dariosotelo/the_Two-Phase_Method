@@ -40,7 +40,6 @@ def col_to_np_array(matrix_A,col):
     return vect
 def is_unbounded(table):
     return np.any(np.all(table <= 0, axis=0))
-
 def simplex(table):
     """
     Solves a linear programming problem in standard form using the simplex algorithm.
@@ -55,7 +54,7 @@ def simplex(table):
     iterations = 0
     table = identityInsideMatrix(table)
     # Iterate until the objective function coefficients are all non-negative
-    while np.any(table[-1, :-1] < 0) and iterations < 100000:
+    while np.any(table[-1, :-1] < 0) and iterations < 10000:
         vec_c = row_to_np_array(table,-1)
         vec_b = col_to_np_array(table,-1)
         
@@ -178,15 +177,13 @@ def from_first_phase_generate_simplex_table_second_phase(final_table_1p, vector_
         table_0[-1,i] = vector_c[i]
     # Return the completed table
     return table_0
-
-
-# Tests
+#%% Tests
 A =np.matrix([[1.,0.,1.,2.5,0.,7.],
                [0.,1.,0.,1.,1.5,8.],
                [0.,0., 0,5., 5. ,0.]])
 c = [1,2,3]
 from_first_phase_generate_simplex_table_second_phase(A,c)
-
+#%%
 #This method returns the canon vector that was found and it's corresponding position
 #The format of return is a list of lists where the first element of the lists is the
 #corresponding canon vector, i. e., it is the value of n where En is the nth canon vector
@@ -199,41 +196,10 @@ def canonVectorAndPosition(matrix):
     for j in range(m):
         canonVecVar=canonVector(matrix[:,j], n-1)
         if canonVecVar>=0:
-            list.append([j,canonVecVar-1])
+            list.append([j,canonVecVar])
     return list
 
-def get_solutions_simplex1(final_table):
-    # Get the dimensions of the final simplex table
-    n2P, m2P = np.shape(final_table)
-    # Get the number of variables and constraints in the problem
-    n, m = n2P - 1, m2P - 1
-    # Initialize the number of non-zero solutions found and the solution vector
-    sol_n = 0
-    vector_sol = np.zeros(m)
-    # Compute the minimum value of the objective function (the negative of the bottom-right entry)
-    min_func_obj = -final_table[n, m]
-    
-    # Iterate over the columns of the final table to extract the solution vector
-    for i in range(m):
-        # If the variable is basic and the maximum number of non-zero solutions hasn't been found yet
-        if final_table[-1, i] == 0 and sol_n != n:
-            j = 0
-            # Search for the 1 in the column corresponding to the basic variable
-            while j < n:
-                if final_table[j, i] == 1:
-                    break
-                j += 1
-            # Save the value of the corresponding entry in the b vector
-            vector_sol[i] = final_table[j, -1]/final_table[j, -1]
-            # Increment the number of non-zero solutions found
-            sol_n += 1
-        else:
-            vector_sol[i] = 0
-    
-    # Return the solution vector and the minimum value of the objective function
-    return vector_sol, min_func_obj
-
-def get_solutions_simplex2(final_table):
+def get_solutions_simplex(final_table):
     # Get the dimensions of the final simplex table
     n2P, m2P = np.shape(final_table)
     # Get the number of variables and constraints in the problem
@@ -256,12 +222,12 @@ def TwoPhases(matrix_A, vector_b, vector_c):
 
     # Check if the problem has a feasible solution; if not, raise an exception
     if is_unbounded(final_table_1p):
-        print("the problem is unbounded")
+        print("The problem is unbounded")
         print("The problem has no feasible solution")
-        return None
+        return 
     if abs(final_table_1p[-1][-1]) >= 10**-5:
         print("The problem has no feasible solution")
-        return None
+        return 
 
     # Second phase: generate simplex table for the second phase and solve it using simplex algorithm
     table_0_2p = from_first_phase_generate_simplex_table_second_phase(final_table_1p, vector_c)
@@ -269,13 +235,17 @@ def TwoPhases(matrix_A, vector_b, vector_c):
     if is_unbounded(final_table_2p):
         print("the problem is unbounded")
         print("The problem has no feasible solution")
-        return None
+        return 
     # Return the optimal solution (vector_sol) and the minimum function objective value (min_func_obj)
-    print( get_solutions_simplex1(final_table_2p))
-    return None
+    sol, z_op = get_solutions_simplex(final_table_2p)
+    print("The solution of the first LPP is: ")
+    for i in range(len(sol)):
+        print("Variable",i+1, "is:",sol[i])
+    print("With the value of the objective function:", z_op)
+    return 
 
     
-
+# %%
 
 # A trial
 matrix_a = np.matrix([
@@ -292,21 +262,7 @@ vector_cost_a = [1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
 vector_obj_a = np.array([2.,2., 2., 0., 0., 0.])
 print("Sol. PPL A Modelado: ")
 TwoPhases(matrix_a,vector_obj_a,vector_cost_a)
-# #Cambio de variable
-# matrix_a = np.matrix([
-# #   [1., 2., 3., 17,   y, 19,  20,  -20,  a.,  e1, h1,  e2, h2, h3]
-#     [1., 1., 1.,  1., 1., 1.,  0.,   0.,  0.,  0., 0.,  0., 0., 0.],
-#     [4., 4., 4.,  4., 4., 0.,  0.,   0.,  0., -1., 0.,  0., 0., 0.],
-#     [2., 4., 0.,  0., 0., 0.,  1.,  -1.,  0.,  0., 1.,  0., 0., 0.],
-#     [0., 0., 4.,  4., 0., 0.,  1.,  -1.,  0.,  0., 0., -1., 0., 0.],
-#     [0., 0., 0.,  0., 0., 0.,  1.,   0., -1.,  0., 0.,  0., 1., 0.],
-#     [0., 0., 0.,  0., 0., 0.,  0.,  -1., -1.,  0., 0.,  0., 0., 1.],
-# ])
-# #               [1., 2., 3.,  17, y,  19, 20,-20,  a, e1, h1, e2, h2, h3]
-# vector_cost_a = [1., 1., 1.,  1., 1., -1., 0., 0., -1, 0., 0., 0., 0., 0.]
-# vector_obj_a = np.array([2.,2., 2., 0., 0., 0.])
-# print("Sol. PPL A Modelado: ")
-# TwoPhases(matrix_a,vector_obj_a,vector_cost_a)
+
 # #B trial:
 matrix_b = np.matrix([
     [1., 1., -1., 0., -1., 0., 0., 0.],
@@ -361,4 +317,4 @@ b_vector=np.array([2., 1., 10., 6., 5.])
 c_vector=np.array([8., -2., 1., 2., 5., 0., 0., 0., 0., 0.])
 print("Sol. Ejercicio C clase Modelado: ")
 TwoPhases(C,b_vector,c_vector)
-# %%
+
