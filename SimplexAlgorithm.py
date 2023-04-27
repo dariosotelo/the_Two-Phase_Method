@@ -37,20 +37,8 @@ def col_to_np_array(matrix_A,col):
     for i in range(n):
         vect[i] = matrix_A[i,col]
     return vect
-
-def make_canonical_basis(table):
-    n,m=table.shape
-    basis = {i  for i in range(n-1)}
-    while basis:
-        for e_i in basis :
-            if (table[e_i,e_i] != 0):
-                table[e_i,:]/=table[e_i,e_i]
-                for k in range(n):
-                    if k!= e_i:
-                        table[k,:]-=table[k,e_i]*table[e_i,:]
-                basis.remove(e_i)
-                break
-    return table
+def is_unbounded(table):
+    return np.any(np.all(table <= 0, axis=0))
 
 def simplex(table):
     """
@@ -66,7 +54,7 @@ def simplex(table):
     iterations = 0
     table = identityInsideMatrix(table)
     # Iterate until the objective function coefficients are all non-negative
-    while np.any(table[-1, :-1] < 0) and iterations < 1000:
+    while np.any(table[-1, :-1] < 0) and iterations < 10000:
         vec_c = row_to_np_array(table,-1)
         vec_b = col_to_np_array(table,-1)
         
@@ -82,6 +70,8 @@ def simplex(table):
                 table[k, :] -= table[k, j] * table[i, :]
         # Increment the iteration counter
         iterations += 1
+        if is_unbounded(table):
+            return table
     return table
 
 #This section of the code is used to ask the user a matrix and it 

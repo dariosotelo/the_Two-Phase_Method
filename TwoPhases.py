@@ -1,7 +1,8 @@
 #%%
 # Import required libraries
 import numpy as np
-from SimplexAlgorithm import simplex
+from SimplexAlgorithm import *
+np.seterr(divide='ignore', invalid='ignore')
 #%%
 # Define a function to generate the simplex table for the first phase of the two-phase simplex algorithm
 def generate_simplex_table_first_phase(matrix_A, vector_b):
@@ -56,57 +57,65 @@ A =np.matrix([[1.,0.,1.,2.5,0.,7.],
 c = [1,2,3]
 from_first_phase_generate_simplex_table_second_phase(A,c)
 #%%
+#This method returns the canon vector that was found and it's corresponding position
+#The format of return is a list of lists where the first element of the lists is the
+#corresponding canon vector, i. e., it is the value of n where En is the nth canon vector
+#The second value is the position inside of the matrix
+def canonVectorAndPosition(matrix):
+    n,m=matrix.shape
+    i=0
+    j=0
+    list=[]
+    for j in range(m):
+        canonVecVar=canonVector(matrix[:,j], n-1)
+        if canonVecVar>=0:
+            list.append([j,canonVecVar])
+    return list
+
 def get_solutions_simplex(final_table):
     # Get the dimensions of the final simplex table
     n2P, m2P = np.shape(final_table)
     # Get the number of variables and constraints in the problem
     n, m = n2P - 1, m2P - 1
-    # Initialize the number of non-zero solutions found and the solution vector
-    sol_n = 0
+    # Initialize the solution vector
     vector_sol = np.zeros(m)
+    pos_solutions = canonVectorAndPosition(final_table)
     # Compute the minimum value of the objective function (the negative of the bottom-right entry)
     min_func_obj = -final_table[n, m]
-    
     # Iterate over the columns of the final table to extract the solution vector
-    for i in range(m):
-        # If the variable is basic and the maximum number of non-zero solutions hasn't been found yet
-        if final_table[-1, i] == 0 and sol_n != n:
-            j = 0
-            # Search for the 1 in the column corresponding to the basic variable
-            while j < n:
-                if final_table[j, i] == 1:
-                    break
-                j += 1
-            # Save the value of the corresponding entry in the b vector
-            vector_sol[i] = final_table[j, -1]
-            # Increment the number of non-zero solutions found
-            sol_n += 1
-        else:
-            vector_sol[i] = 0
-    
+    for pos in pos_solutions:
+        vector_sol[pos[0]] = final_table[pos[1], -1]
     # Return the solution vector and the minimum value of the objective function
     return vector_sol, min_func_obj
-#%% tests
-A =np.matrix([[1.,0.,1.,2.5,0.,7.],
-               [0.,1.,0.,1.,1.5,8.],
-               [0.,0., 1,5., 5. ,5.]])
-get_solutions_simplex(A)
-#%%
+
 def TwoPhases(matrix_A, vector_b, vector_c):
     # First phase: generate simplex table for the first phase and solve it using simplex algorithm
     table_0_1p = generate_simplex_table_first_phase(matrix_A, vector_b)
     final_table_1p = simplex(table_0_1p)
 
     # Check if the problem has a feasible solution; if not, raise an exception
+    if is_unbounded(final_table_1p):
+        print("The problem is unbounded")
+        print("The problem has no feasible solution")
+        return 
     if abs(final_table_1p[-1][-1]) >= 10**-5:
-        raise Exception("The problem has no feasible solution")
+        print("The problem has no feasible solution")
+        return 
 
     # Second phase: generate simplex table for the second phase and solve it using simplex algorithm
     table_0_2p = from_first_phase_generate_simplex_table_second_phase(final_table_1p, vector_c)
     final_table_2p = simplex(table_0_2p)
-
+    if is_unbounded(final_table_2p):
+        print("the problem is unbounded")
+        print("The problem has no feasible solution")
+        return 
     # Return the optimal solution (vector_sol) and the minimum function objective value (min_func_obj)
-    return get_solutions_simplex(final_table_2p)
+    sol, z_op = get_solutions_simplex(final_table_2p)
+    print("The solution of the first LPP is: ")
+    for i in range(len(sol)):
+        print("Variable",i+1, "is:",sol[i])
+    print("With the value of the objective function:", z_op)
+    return 
 
     
 # %%
